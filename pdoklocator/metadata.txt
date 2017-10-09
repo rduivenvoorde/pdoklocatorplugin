@@ -1,0 +1,25 @@
+[general]
+name=PDOK Locator Plugin
+qgisMinimumVersion=2.99
+description=This is a temporary test plugin for the use of QLocator in QGIS3
+version=version 0.1
+author=Richard Duivenvoorde
+email=richard@zuidt.nl
+
+changelog=
+    0.1.0       initial public release
+
+tags=  geocoder,qlocator,pdok
+
+tracker=https://github.com/rduivenvoorde/pdoklocatorplugin
+homepage=https://github.com/rduivenvoorde/pdoklocatorplugin
+repository=https://github.com/rduivenvoorde/pdoklocatorplugin
+
+category=web
+
+experimental=True
+
+about=This is a temporary test plugin for the use of QLocator in QGIS3, see README.md
+
+; change icon...
+icon=icons/icon.png
