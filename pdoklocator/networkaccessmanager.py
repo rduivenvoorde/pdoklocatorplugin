@@ -29,7 +29,7 @@ __date__ = 'August 2016'
 import re
 import urllib.request, urllib.error, urllib.parse
 
-from qgis.PyQt.QtCore import pyqtSlot, QUrl, QEventLoop, QTimer, QCoreApplication
+from qgis.PyQt.QtCore import pyqtSlot, QUrl, QEventLoop, QTimer, QCoreApplication, QObject
 from qgis.PyQt.QtNetwork import QNetworkRequest, QNetworkReply
 
 from qgis.core import QgsNetworkAccessManager, QgsAuthManager, QgsMessageLog
@@ -259,7 +259,7 @@ class NetworkAccessManager(object):
         self.exception_class = RequestsExceptionTimeout
         self.http_call_result.exception = RequestsExceptionTimeout("Timeout error")
 
-    #@pyqtSlot()
+    #@pyqtSlot(QObject)
     def replyFinished(self):
         err = self.reply.error()
         httpStatus = self.reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)

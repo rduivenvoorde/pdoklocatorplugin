@@ -1,12 +1,14 @@
 [general]
 name=PDOK Locator Plugin
 qgisMinimumVersion=2.99
+qgisMaximumVersion=3.99
 description=This is a temporary test plugin for the use of QLocator in QGIS3
 version=version 0.1
 author=Richard Duivenvoorde
 email=richard@zuidt.nl
 
 changelog=
+    0.1.1       fix for api changes
     0.1.0       initial public release
 
 tags=  geocoder,qlocator,pdok

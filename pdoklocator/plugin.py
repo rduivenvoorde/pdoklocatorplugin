@@ -4,6 +4,7 @@ from qgis.core import QgsProject, QgsLocator, QgsLocatorFilter, QgsLocatorResult
                       QgsRectangle, QgsPoint, QgsPointXY, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 
 from .networkaccessmanager import NetworkAccessManager, RequestsException
+from .pdoklocationserverclient import PdokLocationServerClient
 
 import json
 
@@ -52,6 +53,11 @@ class GeocoderLocator:
         self.filter2 = PdokFilter(NetworkAccessManager(), self.iface)
         self.iface.registerLocatorFilter(self.filter2)
 
+        self.c = PdokLocationServerClient()
+        print(1)
+        self.c.suggest('kaas')
+        print(2)
+
     def unload(self):
         self.iface.deregisterLocatorFilter(self.filter)
         self.iface.deregisterLocatorFilter(self.filter2)
@@ -94,6 +100,8 @@ class NominatimFilter(GeocoderFilter):
     #     ##print('Calling name() van NominatimFilter')
     #     return 'NominatimFilter'
 
+    def clone(self):
+        return NominatimFilter(self.nam, self.iface)
 
     def displayName(self):
         ##print('Calling displayName() van NominatimFilter')
@@ -187,7 +195,7 @@ class NominatimFilter(GeocoderFilter):
         rect = QgsRectangle(float(extent[2]), float(extent[0]), float(extent[3]), float(extent[1]))
         dest_crs = QgsProject.instance().crs()
         results_crs = QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.PostgisCrsId)
-        transform = QgsCoordinateTransform(results_crs, dest_crs)
+        transform = QgsCoordinateTransform(results_crs, dest_crs, QgsProject.instance())
         r = transform.transformBoundingBox(rect)
         self.iface.mapCanvas().setExtent(r, False)
         # map the result types to generic GeocoderLocator types to determine the zoom
@@ -217,6 +225,8 @@ class PdokFilter(GeocoderFilter):
     #     #print('Calling name() van PdokFilter')
     #     return 'PdokFilter'
 
+    def clone(self):
+        return PdokFilter(self.nam, self.iface)
 
     def displayName(self):
         ##print('Calling displayName() van PdokFilter')
@@ -324,7 +334,7 @@ class PdokFilter(GeocoderFilter):
                 point_xy = QgsPointXY(point)
                 dest_crs = QgsProject.instance().crs()
                 results_crs = QgsCoordinateReferenceSystem(4326, QgsCoordinateReferenceSystem.PostgisCrsId)
-                transform = QgsCoordinateTransform(results_crs, dest_crs)
+                transform = QgsCoordinateTransform(results_crs, dest_crs, QgsProject.instance())
                 point_xy = transform.transform(point_xy)
                 self.iface.mapCanvas().setCenter(point_xy)
 
