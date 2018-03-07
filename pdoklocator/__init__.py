@@ -4,7 +4,7 @@
 """
 
 def classFactory(iface):
-  from .plugin import GeocoderLocator
+  from .qlocatorfilterplugin import GeocoderLocator
   return GeocoderLocator(iface)
 
 
