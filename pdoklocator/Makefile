@@ -80,7 +80,7 @@ derase:
 
 # Create a symlink for development in the default profile python plugins dir
 symlink:
-	#mkdir $(HOME)/.local/share/QGIS/QGIS3/profiles/default/python/plugins
+	mkdir -p $(HOME)/.local/share/QGIS/QGIS3/profiles/default/python/plugins
 	ln -s `pwd` $(HOME)/.local/share/QGIS/QGIS3/profiles/default/python/plugins/$(PLUGINNAME)
 
 # Remove the created symlink

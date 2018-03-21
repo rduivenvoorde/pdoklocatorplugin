@@ -26,3 +26,7 @@ class GeocoderFilter(QgsLocatorFilter):
 
     def info(self, msg=""):
         QgsMessageLog.logMessage('{}'.format(msg), 'GeocoderFilter', Qgis.Info)
+
+    def set_key(self, key):
+        self.info('setting key: {}  self: {}'.format(key, self))
+

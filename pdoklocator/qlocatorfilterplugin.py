@@ -4,7 +4,6 @@ from qgis.core import QgsProject, QgsLocator, QgsLocatorFilter, QgsLocatorResult
                       QgsRectangle, QgsPoint, QgsPointXY, QgsCoordinateReferenceSystem, QgsCoordinateTransform
 
 from .networkaccessmanager import NetworkAccessManager, RequestsException
-from .googlelocatorconfig import GoogleLocatorConfig
 
 from .locatorfilters import googlegeocoder, googleplaces, nominatim, pdoklocatieserver
 

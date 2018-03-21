@@ -1,7 +1,8 @@
 
-from qgis.core import QgsProject, QgsLocatorResult, QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform
+from qgis.core import QgsProject, QgsLocatorResult, QgsRectangle, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsSettings
 from .. import networkaccessmanager
 from .basefilter import GeocoderFilter
+from .base_api_key_dialog import BaseApiKeyDialog
 
 import json
 
@@ -9,16 +10,17 @@ class GoogleGeocodeFilter(GeocoderFilter):
 
     def __init__(self, iface):
         super().__init__(iface)
-        # TODO come from UI
-        self.key = 'AIzaSyCSnHVDNVTboIagNdfbQLt2howajtzx8wM'
-        #self.google_config = GoogleLocatorConfig(self.iface.mainWindow())
-        self.google_config = None # GoogleGeocodeFilter()
+        self.settings = QgsSettings()
+        self.settings_key = '/qgisGeoLocator/qoogleGeocodeFilter/qoogleKey'
 
     def clone(self):
         return GoogleGeocodeFilter(self.iface)
 
     def displayName(self):
-        return 'Google Geocoder Api'
+        if self.settings.contains(self.settings_key, QgsSettings.Plugins):
+            return 'Google Geocoder Api'
+        else:
+            return 'Google Geocoder Api needs a KEY first, see Configure'
 
     def prefix(self):
         return 'ggeo'
@@ -27,8 +29,27 @@ class GoogleGeocodeFilter(GeocoderFilter):
         return True
 
     def openConfigWidget(self, parent=None):
-        print('WIDGET WIDGET')
-        self.google_config.show()
+        # parent of the google config dialog should actually be the locatortab in the options dialog
+        # but dunno how to get a handle to it easily
+        google_config = BaseApiKeyDialog(self.iface.mainWindow())
+        # to be able to see the config, we need to search for a QgsLocatorOptionsWidget ?
+        #notworking self.google_config.activateWindow()
+        #notworking self.google_config.raise_()
+
+        # check for Google key, if available prefill dialog
+        google_config.le_geocoding_api_key.setText(self.settings.value(self.settings_key, defaultValue='', type=str, section=QgsSettings.Plugins))
+
+        google_config.show()
+        # Run the dialog event loop
+        result = google_config.exec_()
+        # See if OK was pressed
+        if result:
+            key = google_config.le_geocoding_api_key.text()
+            if len(key) > 0:
+                self.settings.setValue(self.settings_key, key, QgsSettings.Plugins)
+
+
+
 
     # # /**
     # #  * Returns true if the filter should be used when no prefix
@@ -53,6 +74,17 @@ class GoogleGeocodeFilter(GeocoderFilter):
         #  * whether the query has been canceled. If so, the subclass should return
         #  * this method as soon as possible.
         #  */
+        # value(self, key, defaultValue=None, type=0, section=None)
+        key = self.settings.value(self.settings_key, defaultValue='', type=str, section=QgsSettings.Plugins)
+        self.info('fetchResults KEY: "{}" self: {}'.format(key, self))
+        if key == '':
+            result = QgsLocatorResult()
+            result.filter = self
+            result.displayString = self.displayName()
+            self.resultFetched.emit(result)
+            return
+        else:
+            self.info("TOCH DOOR: {}".format(key))
 
         if len(search) < 3:
             return
@@ -62,7 +94,7 @@ class GoogleGeocodeFilter(GeocoderFilter):
         # Google geocoding api
         # https://developers.google.com/maps/documentation/geocoding/get-api-key
         # https://developers.google.com/maps/documentation/geocoding/usage-limits  # 2500 requests per day
-        url = 'https://maps.googleapis.com/maps/api/geocode/json?key={}&address={}'.format(self.key, search)
+        url = 'https://maps.googleapis.com/maps/api/geocode/json?key={}&address={}'.format(key, search)
         # https://maps.googleapis.com/maps/api/geocode/json?types=geocode&key=AIzaSyCSnHVDNVTboIagNdfbQLt2howajtzx8wM&address=2022zj
 
         # https://developers.google.com/places/web-service/query
@@ -75,11 +107,11 @@ class GoogleGeocodeFilter(GeocoderFilter):
 
 
         try:
-            print('url: {}'.format(url))
+            self.info('Firing url: {}'.format(url))
             (response, content) = self.nam.request(url)
             ##print('response: {}'.format(response))
             # TODO: check statuscode etc
-            print('content: {}'.format(content))
+            #print('content: {}'.format(content))
 
             content_string = content.decode('utf-8')
             obj = json.loads(content_string)
@@ -111,7 +143,7 @@ class GoogleGeocodeFilter(GeocoderFilter):
 
         doc = result.userData
         bounds = None
-        if 'geometry' in doc:
+        if doc is not None and 'geometry' in doc:
             g = doc['geometry']
             if 'bounds' in g:
                 bounds = g['bounds']

@@ -9,7 +9,7 @@ class GooglePlacesFilter(GeocoderFilter):
     def __init__(self, iface):
         super().__init__(iface)
         # TODO come from UI
-        self.key = 'AIzaSyCSnHVDNVTboIagNdfbQLt2howajtzx8wM'
+        self.key = None
         #self.google_config = GoogleLocatorConfig(self.iface.mainWindow())
         self.google_config = None #GoogleLocatorConfig()
 
@@ -17,7 +17,10 @@ class GooglePlacesFilter(GeocoderFilter):
         return GooglePlacesFilter(self.iface)
 
     def displayName(self):
-        return 'Google Places Api (end with space to search)'
+        if self.key is None:
+            return 'Google Places Api needs a KEY first, see Configure'
+        else:
+            return 'Google Places Api (end with space to search)'
 
     def prefix(self):
         return 'gapi'
@@ -52,6 +55,10 @@ class GooglePlacesFilter(GeocoderFilter):
         #  * whether the query has been canceled. If so, the subclass should return
         #  * this method as soon as possible.
         #  */
+
+
+        if self.key is None:
+            return
 
         if len(search) < 3:
             return
